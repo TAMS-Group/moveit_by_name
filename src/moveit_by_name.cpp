@@ -31,7 +31,9 @@ int main(int argc, char** argv){
 
   ros::Subscriber sub = nh.subscribe<moveit_by_name::Command>("moveit_by_name", 10, &callback);
 
-  ros::spin();
+  ros::MultiThreadedSpinner spinner{2};
+  spinner.spin();
+  ros::waitForShutdown();
 
   return 0;
 }
