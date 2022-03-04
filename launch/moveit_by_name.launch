@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+  <node pkg="moveit_by_name" type="moveit_by_name" name="moveit_by_name" />
+</launch>
