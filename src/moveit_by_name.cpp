@@ -17,6 +17,7 @@ void callback(const moveit_by_name::CommandConstPtr& msg){
   }
 
   mgi[msg->group]->move();
+  // TODO(v4hn): roswarn on failure
 }
 
 int main(int argc, char** argv){
@@ -29,9 +30,13 @@ int main(int argc, char** argv){
   for(auto& group_name : robot->getJointModelGroupNames())
     mgi.insert(std::make_pair(group_name, std::make_unique<moveit::planning_interface::MoveGroupInterface>(group_name)));
 
-  ros::Subscriber sub = nh.subscribe<moveit_by_name::Command>("moveit_by_name", 10, &callback);
+  ros::SubscribeOptions ops;
+  ops.template init<moveit_by_name::Command>("moveit_by_name", 10, callback);
+  ops.allow_concurrent_callbacks = true;
+  ros::Subscriber sub = nh.subscribe(ops);
 
-  ros::MultiThreadedSpinner spinner{2};
+  // TODO(v4hn): block mgis that are currently in use and leave one spinner free for move responses.
+  ros::MultiThreadedSpinner spinner{4};
   spinner.spin();
   ros::waitForShutdown();
 
