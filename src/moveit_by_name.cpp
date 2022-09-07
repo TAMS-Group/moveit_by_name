@@ -27,8 +27,12 @@ int main(int argc, char** argv){
 
   moveit::core::RobotModelConstPtr robot{ moveit::planning_interface::getSharedRobotModel("robot_description") };
 
-  for(auto& group_name : robot->getJointModelGroupNames())
-    mgi.insert(std::make_pair(group_name, std::make_unique<moveit::planning_interface::MoveGroupInterface>(group_name)));
+  for(auto& group_name : robot->getJointModelGroupNames()){
+    auto group_mgi{ std::make_unique<moveit::planning_interface::MoveGroupInterface>(group_name) };
+    group_mgi->setMaxVelocityScalingFactor(1.0);
+    group_mgi->setMaxAccelerationScalingFactor(1.0);
+    mgi.insert(std::make_pair(group_name, std::move(group_mgi)));
+  }
 
   ros::SubscribeOptions ops;
   ops.template init<moveit_by_name::Command>("moveit_by_name", 10, callback);
