@@ -23,14 +23,14 @@ void callback(const moveit_by_name::CommandConstPtr& msg){
 int main(int argc, char** argv){
   ros::init(argc, argv, "moveit_by_name");
 
-  ros::NodeHandle nh;
+  ros::NodeHandle nh, pnh{"~"};
 
   moveit::core::RobotModelConstPtr robot{ moveit::planning_interface::getSharedRobotModel("robot_description") };
 
   for(auto& group_name : robot->getJointModelGroupNames()){
     auto group_mgi{ std::make_unique<moveit::planning_interface::MoveGroupInterface>(group_name) };
-    group_mgi->setMaxVelocityScalingFactor(1.0);
-    group_mgi->setMaxAccelerationScalingFactor(1.0);
+    group_mgi->setMaxVelocityScalingFactor(pnh.param<double>("velocity_scaling", 0.2));
+    group_mgi->setMaxAccelerationScalingFactor(pnh.param<double>("acceleration_scaling", 0.5));
     mgi.insert(std::make_pair(group_name, std::move(group_mgi)));
   }
 
